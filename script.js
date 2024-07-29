@@ -1,78 +1,75 @@
-let startBtn = document.getElementById('start'); 
-let stopBtn = document.getElementById('pause'); 
-let resetBtn = document.getElementById('reset'); 
+let hours = 0;
+let minutes = 0;
+let seconds = 0;
+let count=0;
+let laps = [];
+let intervalId = null;
+let isRunning = false;
 
-let hour = 0; 
-let minute = 0; 
-let second = 0; 
-let count = 0; 
+document.getElementById('start-btn').addEventListener('click', startStopwatch);
+document.getElementById('pause-btn').addEventListener('click', pauseStopwatch);
+document.getElementById('reset-btn').addEventListener('click', resetStopwatch);
+document.getElementById('lap-btn').addEventListener('click', recordLap);
 
-startBtn.addEventListener('click', function () { 
-	timer = true; 
-	stopWatch(); 
-}); 
+function startStopwatch() {
+	if (!isRunning) {
+		intervalId = setInterval(updateTime, 1000);
+		isRunning = true;
+	}
+}
+function pauseStopwatch() {
+	if (isRunning) {
+		clearInterval(intervalId);
+		isRunning = false;
+	}
+}
 
-stopBtn.addEventListener('click', function () { 
-	timer = false; 
-}); 
+function resetStopwatch() {
+	pauseStopwatch();
+	hours = 0;
+	minutes = 0;
+	seconds = 0;
+	laps = [];
+	updateDisplay();
+}
+function recordLap() {
+	if (isRunning) {
+		laps.push(`${hours}:${minutes}:${seconds}:${count}`);
+		updateLapList();
+	}
+}
 
-resetBtn.addEventListener('click', function () { 
-	timer = false; 
-	hour = 0; 
-	minute = 0; 
-	second = 0; 
-	count = 0; 
-	document.getElementById('hr').innerHTML = "00"; 
-	document.getElementById('min').innerHTML = "00"; 
-	document.getElementById('sec').innerHTML = "00"; 
-	document.getElementById('count').innerHTML = "00"; 
-}); 
+function updateTime() {
+	seconds++;
+	if (seconds >= 60) {
+		minutes++;
+		seconds = 0;
+	}
+	if (minutes >= 60) {
+		hours++;
+		minutes = 0;
+    }
+	updateDisplay();
+}
 
-function stopWatch() { 
-	if (timer) { 
-		count++; 
+function updateDisplay() {
+	document.getElementById('hours').textContent = pad(hours);
+	document.getElementById('minutes').textContent = pad(minutes);
+	document.getElementById('seconds').textContent = pad(seconds);
+	document.getElementById('count').textContent = pad(content);
 
-		if (count == 100) { 
-			second++; 
-			count = 0; 
-		} 
+}
 
-		if (second == 60) { 
-			minute++; 
-			second = 0; 
-		} 
+function updateLapList() {
+	const lapList = document.getElementById('lap-list');
+	lapList.innerHTML = '';
+	laps.forEach((lap, index) => {
+		const lapItem = document.createElement('li');
+		lapItem.textContent = `Lap ${index + 1}: ${lap}`;
+		lapList.appendChild(lapItem);
+	});
+}
 
-		if (minute == 60) { 
-			hour++; 
-			minute = 0; 
-			second = 0; 
-		} 
-
-		let hrString = hour; 
-		let minString = minute; 
-		let secString = second; 
-		let countString = count; 
-
-		if (hour < 10) { 
-			hrString = "0" + hrString; 
-		} 
-
-		if (minute < 10) { 
-			minString = "0" + minString; 
-		} 
-
-		if (second < 10) { 
-			secString = "0" + secString; 
-		} 
-
-		if (count < 10) { 
-			countString = "0" + countString; 
-		} 
-
-		document.getElementById('hr').innerHTML = hrString; 
-		document.getElementById('min').innerHTML = minString; 
-		document.getElementById('sec').innerHTML = secString; 
-		document.getElementById('count').innerHTML = countString; 
-		setTimeout(stopWatch, 10); 
-	} 
+function pad(time) {
+	return time.toString().padStart(2, '0');
 }
